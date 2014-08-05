@@ -21,6 +21,9 @@ repositories {
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.5'
     compile 'ch.qos.logback:logback-classic:1.0.13'
+    compile 'com.google.guava:guava:17.0'
+    compile 'org.javassist:javassist:3.18.2-GA'
+    compile 'org.reflections:reflections:0.9.9-RC2'  
 }
 
 task wrapper(type: Wrapper) {
