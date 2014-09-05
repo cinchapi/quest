@@ -43,8 +43,8 @@ public class Quest {
     public static void main(String... args) {
         if(args.length > 0) {
             String action = args[0].toLowerCase();
-            inputArgs = Arrays.copyOfRange(args, 1, args.length);
-            Class<? extends QuestAction> clazz = actions.get(action);
+            INPUT_ARGS = Arrays.copyOfRange(args, 1, args.length);
+            Class<? extends QuestAction> clazz = ACTIONS.get(action);
             if(clazz != null) {
                 getInstance(clazz).run();
                 exit(0);
@@ -106,13 +106,25 @@ public class Quest {
     /**
      * A collection of the arguments that are passed in by the user.
      */
-    static String[] inputArgs;
+    static String[] INPUT_ARGS;
 
     /**
      * The list of actions that the program can execute
      */
-    private static Map<String, Class<? extends QuestAction>> actions = Maps
+    private static Map<String, Class<? extends QuestAction>> ACTIONS = Maps
             .newTreeMap();
+
+    /**
+     * The name of the Gradle wrapper that is installed alongside each Quest
+     * application.
+     */
+    private static String GRADLE_WRAPPER = ".gradlewh";
+
+    /**
+     * The name of the Gradle wrapper (for windows) that is installed alongside
+     * each Quest application.
+     */
+    private static String GRADLE_WRAPPER_WINDOWS = ".gradlewh.bat";
 
     static {
         Reflections.log = null; // turn off reflection logging
@@ -125,7 +137,7 @@ public class Quest {
                     && QuestAction.class.isAssignableFrom(clazz)) {
                 String name = clazz.getSimpleName().split("Action")[0]
                         .toLowerCase();
-                actions.put(name, (Class<? extends QuestAction>) clazz);
+                ACTIONS.put(name, (Class<? extends QuestAction>) clazz);
             }
         }
 
@@ -148,8 +160,8 @@ public class Quest {
                     .append(System.getProperty("line.separator"));
             sb.append("Available actions:").append(
                     System.getProperty("line.separator"));
-            for (String action : actions.keySet()) {
-                QuestAction instance = getInstance(actions.get(action));
+            for (String action : ACTIONS.keySet()) {
+                QuestAction instance = getInstance(ACTIONS.get(action));
                 sb.append(String.format("%-30.30s  %-30.30s%n", action,
                         instance.getDescription(),
                         System.getProperty("line.separator")));
@@ -207,8 +219,8 @@ public class Quest {
                     }
                 }
 
-                // Make the gradle built tools executable
-                String[] gradle = { ".gradlewh", ".gradlewh.bat" };
+                // Make the Gradle build tools executable
+                String[] gradle = { GRADLE_WRAPPER, GRADLE_WRAPPER_WINDOWS };
                 Set<PosixFilePermission> perms = Sets.newHashSet(
                         PosixFilePermission.OWNER_EXECUTE,
                         PosixFilePermission.OWNER_READ,
@@ -233,7 +245,7 @@ public class Quest {
         public void run() {
             String appName;
             try {
-                appName = Quest.inputArgs[0];
+                appName = Quest.INPUT_ARGS[0];
             }
             catch (ArrayIndexOutOfBoundsException e) {
                 String[] pathSegments = System.getProperty("user.dir").split(
@@ -258,7 +270,7 @@ public class Quest {
      * 
      * <p>
      * Each action can access user arguments that are passed into the program
-     * via the {@link #inputArgs} variable.
+     * via the {@link #INPUT_ARGS} variable.
      * </p>
      * 
      * @author jeffnelson
