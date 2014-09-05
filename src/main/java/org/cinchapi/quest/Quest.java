@@ -6,9 +6,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -18,6 +22,7 @@ import org.reflections.Reflections;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 
 /**
@@ -27,7 +32,7 @@ import com.google.common.io.Files;
  * 
  * @author jeffnelson
  */
-@SuppressWarnings({"unchecked", "unused"})
+@SuppressWarnings({ "unchecked", "unused" })
 public class Quest {
 
     /**
@@ -98,16 +103,6 @@ public class Quest {
         }
     }
 
-//    /**
-//     * Print the copyright message.
-//     */
-//    private static void displayCopyright() {
-//        System.out.println("Copyright (c) 2014, Jeff "
-//                + "Nelson & Cinchapi Software "
-//                + "Collective. All Rights Reserved");
-//        System.out.println(System.getProperty("line.separator"));
-//    }
-
     /**
      * A collection of the arguments that are passed in by the user.
      */
@@ -146,7 +141,6 @@ public class Quest {
         @Override
         public void run() {
             displayBanner();
-//            displayCopyright();
             StringBuilder sb = new StringBuilder();
             sb.append(
                     "This Quest CLI is used to manage Quest framework projects.")
@@ -169,7 +163,7 @@ public class Quest {
         }
 
     }
-    
+
     /**
      * The {@link QuestAction} that initializes an application in the current
      * working directory.
@@ -212,6 +206,23 @@ public class Quest {
                         Files.copy(source, destination);
                     }
                 }
+
+                // Make the gradle built tools executable
+                String[] gradle = { ".gradlewh", ".gradlewh.bat" };
+                Set<PosixFilePermission> perms = Sets.newHashSet(
+                        PosixFilePermission.OWNER_EXECUTE,
+                        PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE);
+                for (String tool : gradle) {
+                    java.nio.file.Files.setPosixFilePermissions(
+                            Paths.get(tool), perms);
+                }
+
+                // TODO change prefs file
+                // TDOO create build.gradle that has all deps, etc
+                // TODO create src directory and add main class that extends
+                // AppRunner
+                // TODO
             }
             catch (IOException e) {
                 throw Throwables.propagate(e);
@@ -238,7 +249,7 @@ public class Quest {
         }
 
     }
-    
+
     /**
      * A {@link QuestAction} is a runnable that contains an implementation for a
      * Quest CLI action in its {@link #run()} method. Any subclass that is named
@@ -262,20 +273,4 @@ public class Quest {
          */
         protected abstract String getDescription();
     }
-    
-    private static class TestAction extends QuestAction {
-
-        @Override
-        public void run() {
-            System.out.println("Jeff Nelson is a cool guy");
-
-        }
-
-        @Override
-        protected String getDescription() {
-            return "this is just a dummy thing fasfas";
-        }
-
-    }
-
 }
